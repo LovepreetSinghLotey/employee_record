@@ -1,9 +1,11 @@
 import 'package:employee_record/datasource/employee_data_source.dart';
 import 'package:employee_record/model/employee.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:realm/realm.dart';
+import 'package:sembast_web/sembast_web.dart';
 
 part 'employee_event.dart';
 part 'employee_state.dart';
@@ -35,35 +37,55 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
   }
 
   void _setupEmployeeListener(event, Emitter emit) async {
-    await emit.forEach<RealmResultsChanges<Employee>>(
-      GetIt.I<EmployeeDataSource>().employeeData(),
-      onData: (employees) {
-        final groupedEmployees = employees.results.fold(
-          <EmployeeType, List<Employee>>{},
-          (map, employee) {
-            EmployeeType type =
-                (employee.endDate == null ||
-                        employee.endDate!.isAfter(DateTime.now()))
-                    ? EmployeeType.current
-                    : EmployeeType.previous;
+    if (kIsWeb) {
+      await emit.forEach(
+        GetIt.I<EmployeeDataSource>().employeeWebData(),
+        onData: (employeeSnapshots) {
+          var data = employeeSnapshots as List<RecordSnapshot>;
+          return _getEmployeesProcessedData(
+            data
+                .map(
+                  (e) => EmployeeJson.fromJson(e.value as Map<String, Object?>),
+                )
+                .toList(),
+          );
+        },
+      );
+    } else {
+      await emit.forEach<RealmResultsChanges<Employee>>(
+        GetIt.I<EmployeeDataSource>().employeeData(),
+        onData: (employees) {
+          return _getEmployeesProcessedData(employees.results.toList());
+        },
+      );
+    }
+  }
 
-            (map[type] ??= []).add(employee);
-            return map;
-          },
-        );
+  EmployeeInitial _getEmployeesProcessedData(List<Employee> employees) {
+    final groupedEmployees = employees.fold(<EmployeeType, List<Employee>>{}, (
+      map,
+      employee,
+    ) {
+      EmployeeType type =
+          (employee.endDate == null ||
+                  employee.endDate!.isAfter(DateTime.now()))
+              ? EmployeeType.current
+              : EmployeeType.previous;
 
-        groupedEmployees.forEach((type, list) {
-          list.sort((a, b) => b.startDate.compareTo(a.startDate));
-        });
+      (map[type] ??= []).add(employee);
+      return map;
+    });
 
-        final sortedGroupedEmployees = {
-          EmployeeType.current: groupedEmployees[EmployeeType.current] ?? [],
-          EmployeeType.previous: groupedEmployees[EmployeeType.previous] ?? [],
-        }..removeWhere((key, value) => value.isEmpty);
+    groupedEmployees.forEach((type, list) {
+      list.sort((a, b) => b.startDate.compareTo(a.startDate));
+    });
 
-        return EmployeeInitial(sortedGroupedEmployees);
-      },
-    );
+    final sortedGroupedEmployees = {
+      EmployeeType.current: groupedEmployees[EmployeeType.current] ?? [],
+      EmployeeType.previous: groupedEmployees[EmployeeType.previous] ?? [],
+    }..removeWhere((key, value) => value.isEmpty);
+
+    return EmployeeInitial(sortedGroupedEmployees);
   }
 
   void _deleteEmployee(DeleteEmployee event, emit) {

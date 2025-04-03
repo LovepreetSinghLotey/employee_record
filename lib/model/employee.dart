@@ -21,3 +21,29 @@ class _Employee {
   late DateTime startDate;
   late DateTime? endDate;
 }
+
+/// Add JSON serialization in the generated `Employee` class
+extension EmployeeJson on Employee {
+  Map<String, Object?> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'designation': designation,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+    };
+  }
+
+  static Employee fromJson(Map<String, Object?> json) {
+    return Employee(
+      json['id'] as int,
+      json['name'] as String,
+      json['designation'] as String,
+      DateTime.parse(json['startDate'] as String),
+      endDate:
+          json['endDate'] != null
+              ? DateTime.parse(json['endDate'] as String)
+              : null,
+    );
+  }
+}
