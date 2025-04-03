@@ -263,12 +263,9 @@ class _CustomDatePickerDialogState extends State<CustomDatePickerDialog> {
                         }
                       });
                     },
-                    firstDay:
-                        widget.selectingStartDate
-                            ? DateTime.now().subtract(
-                              const Duration(days: 365 * 100),
-                            )
-                            : widget.startDate ?? DateTime.now(),
+                    firstDay: DateTime.now().subtract(
+                      const Duration(days: 365 * 100),
+                    ),
                     lastDay: DateTime.now().add(const Duration(days: 365)),
                     focusedDay: date ?? DateTime.now(),
                     currentDay: DateTime.now(),
