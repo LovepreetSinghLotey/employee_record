@@ -52,6 +52,10 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
           },
         );
 
+        groupedEmployees.forEach((type, list) {
+          list.sort((a, b) => b.startDate.compareTo(a.startDate));
+        });
+
         final sortedGroupedEmployees = {
           EmployeeType.current: groupedEmployees[EmployeeType.current] ?? [],
           EmployeeType.previous: groupedEmployees[EmployeeType.previous] ?? [],
