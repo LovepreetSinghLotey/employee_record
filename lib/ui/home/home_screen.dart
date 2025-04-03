@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       _bloc.add(DeleteEmployee(employee));
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          duration: Duration(seconds: 15),
+                          duration: Duration(seconds: 5),
                           content: Text("Employee data has been deleted"),
                           action: SnackBarAction(
                             label: "Undo",
