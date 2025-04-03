@@ -123,7 +123,11 @@ class _AddEditScreenState extends State<AddEditScreen> {
               ),
             ),
             const Spacer(),
-            Divider(),
+            Divider(
+              height: 1,
+              thickness: 0,
+            ),
+            const SizedBox(height: 16,),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -162,6 +166,7 @@ class _AddEditScreenState extends State<AddEditScreen> {
                 const SizedBox(width: 16),
               ],
             ),
+            const SizedBox(height: 16,)
           ],
         ),
       ),

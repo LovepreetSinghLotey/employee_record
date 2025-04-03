@@ -28,8 +28,11 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
     on<UndoDeleteEmployee>(_undoDeleteEmployee);
   }
 
-  void _saveEmployee(SaveEmployee event, emit) =>
-      GetIt.I<EmployeeDataSource>().saveEmployee(event.employee);
+  void _saveEmployee(SaveEmployee event, emit) {
+    GetIt.I<EmployeeDataSource>().saveEmployee(event.employee);
+    startDate = null;
+    endDate = null;
+  }
 
   void _setupEmployeeListener(event, Emitter emit) async {
     await emit.forEach<RealmResultsChanges<Employee>>(
@@ -48,8 +51,13 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
             return map;
           },
         );
-        groupedEmployees.removeWhere((key, value) => value.isEmpty);
-        return EmployeeInitial(groupedEmployees);
+
+        final sortedGroupedEmployees = {
+          EmployeeType.current: groupedEmployees[EmployeeType.current] ?? [],
+          EmployeeType.previous: groupedEmployees[EmployeeType.previous] ?? [],
+        }..removeWhere((key, value) => value.isEmpty);
+
+        return EmployeeInitial(sortedGroupedEmployees);
       },
     );
   }
