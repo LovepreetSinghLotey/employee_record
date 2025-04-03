@@ -115,7 +115,7 @@ class _AddEditScreenState extends State<AddEditScreen> {
                         enabled: false,
                         _endDateController,
                         prefixIcon: "assets/svg/date.svg",
-                        hintText: "End date",
+                        hintText: "No date",
                       ),
                     ),
                   ),
